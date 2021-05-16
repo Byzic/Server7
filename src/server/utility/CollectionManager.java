@@ -1,0 +1,261 @@
+package server.utility;
+
+import common.data.Flat;
+import common.data.Furnish;
+import exceptions.KeyException;
+
+import java.time.LocalDateTime;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * Управляет коллекцией
+ */
+//работа с коллекцией: создание нового id, добавление элемента, удаление и тд
+public class CollectionManager {
+    private Hashtable<Integer, Flat> hashtable=new Hashtable<>();
+    private FileManager fileManager;
+    private LocalDateTime lastInitTime;
+
+
+    public CollectionManager(FileManager fileManager) {
+        this.fileManager=fileManager;
+        loadCollection();
+    }
+
+    /**
+     * Записывает коллекцию в файл
+     */
+    public void saveToFile(){
+        fileManager.writeCollection(hashtable);
+    }
+
+    /**
+     * Читает коллекцию из файла
+     */
+    public void loadCollection() {
+        hashtable = fileManager.readCollection();
+        lastInitTime = LocalDateTime.now();
+
+    }
+
+    /**
+     * Представляет все элементы коллекции в виде строки
+     * @return строковое представление коллекции
+     */
+    public String getStringElements(){
+        String strElem="";
+        if (hashtable.isEmpty()) return "Коллекция пуста!!!";
+        for (String str: hashtable.entrySet().stream().map(x->"\u001B[37m"+"\u001B[33m"+"КЛЮЧ:"+x.getKey()+"\n"+"\u001B[33m"+"\u001B[37m"+x.getValue().toString()+"\n").collect(Collectors.toList())){
+            strElem+=str;
+        }
+        return strElem;
+
+
+    }
+
+    /**
+     * Чистит коллекцию
+     */
+
+    public void clear(){
+        hashtable.clear();
+    }
+    /**
+     * Определяет класс коллекции
+     * @return имя класса коллекции
+     */
+    public String collectionType(){
+        return hashtable.getClass().getName();
+
+    }
+    /**
+     * Определяет размер коллекции
+     * @return размер коллекции
+     */
+    public int collectionSize(){
+        return hashtable.size();
+    }
+    public LocalDateTime getLastInitTime(){
+        return lastInitTime;
+    }
+
+
+
+    /**
+     * Добавляет новый элемент в коллекцию
+     * @param key ключ
+     * @param flat значение
+     */
+    public void insertNew(Integer key, Flat flat){
+        hashtable.put(key,newId(flat));
+    }
+
+    /**
+     * Находит ключ элемента по его ID
+     * @param id id
+     * @return ключ
+     */
+    public Integer getKeyById(Integer id){
+        List list=hashtable.entrySet().stream().filter(x->x.getValue().getID().equals(id)).map(x-> x.getKey()).collect(Collectors.toList());
+        if (list.isEmpty()) return null;
+        else return Integer.parseInt(list.get(0).toString());
+
+
+    }
+
+    /**
+     * Заменяет элемент по ключу
+     * @param key ключ
+     * @param flat значение
+     */
+    public void update(Integer key, Flat flat){
+        hashtable.remove(key);
+        hashtable.put(key,newId(flat));
+
+    }
+
+    /**
+     * Удаляет элемент по ключу
+     * @param key ключ
+     */
+    public void removeKey(int key){
+        try{
+            if (!hashtable.containsKey(key)) throw new KeyException();
+            hashtable.remove(key);
+            ResponseCreator.appendln("\u001B[37m"+"\u001B[33m"+"Элемент с ключом "+ key+" успешно удален"+"\u001B[33m"+"\u001B[37m");
+        }catch (KeyException e){
+            ResponseCreator.error("Элемента с таким ключом не существует");
+        }
+    }
+
+    /**
+     * Удаляет все элементы с заданным числом комнат
+     * @param number число комнат
+     * @return количество удаленных элементов
+     */
+    public int removeAllByNumber(Integer number){
+        List<Integer> a;
+        a=hashtable.entrySet().stream().filter(x-> x.getValue().getNumberOfRooms().equals(number)).map(x->x.getKey()).collect(Collectors.toList());
+        for (Integer i: a){
+            hashtable.remove(i);
+        }
+        return a.size();
+
+    }
+
+    /**
+     * Удаляет все элементы с наименьшими ключами
+     * @param key ключ
+     * @return количество удаленных элементов
+     */
+    public int removeLowerKey(Integer key){
+        List<Integer> a;
+        a=hashtable.entrySet().stream().filter(x-> x.getKey().intValue()<key.intValue()).map(x->x.getKey()).collect(Collectors.toList());
+        for (Integer i: a){
+            hashtable.remove(i);
+        }
+        return a.size();
+
+    }
+
+    /**
+     * Находит элементы, имя которых начинается с заданной подстроки
+     * @param string подстрока
+     *
+     */
+    public void filterName(String string){
+        hashtable.entrySet().stream().filter(x->x.getValue().getName().indexOf(string)==0).map(x->x.getValue().toString()).forEach(ResponseCreator::appendln);
+        if (ResponseCreator.get().isEmpty()){ResponseCreator.appendln("\u001B[37m"+"\u001B[33m"+"Нет элементов, начинающихся на такую строку"+"\u001B[33m"+"\u001B[37m");}
+    }
+
+    /**
+     * Заменяет значение по ключу, если оно больше
+     * @param key ключ
+     */
+    public void replaceIfGreater(Integer key,Flat flat){
+        try{
+            if (hashtable.get(key).compareTo(flat)<0){
+                hashtable.put(key,newId(flat));
+                ResponseCreator.appendln("\u001B[37m"+"\u001B[33m"+"Квартира с ключом "+key+" была успешно заменена"+"\u001B[33m"+"\u001B[37m");
+
+            }
+            else {ResponseCreator.appendln("\u001B[37m"+"\u001B[33m"+"Квартира с ключом "+key+" не была заменена, так как меньше или равна уже существующей"+"\u001B[33m"+"\u001B[37m");
+        }}catch(NullPointerException e){
+            ResponseCreator.error("Элемента с таким ключом не существует");
+        }
+
+
+    }
+
+    /**
+     * Проверяет, есть ли в коллекции элемент с данным ключом
+     * @param key ключ
+     * @throws NullPointerException если ключа нет
+     */
+    public void checkKey(Integer key){
+            if (!hashtable.containsKey(key)) {throw new NullPointerException();}
+
+    }
+    /**
+     * Проверяет, есть ли в коллекции элемент с данным ключом
+     * @param key ключ
+     * @throws NullPointerException если ключ есть
+     */
+    public void Key(Integer key){
+        if (hashtable.containsKey(key)) {throw new NullPointerException();}
+    }
+
+    /**
+     * Проверяет, есть ли в коллекции элемент с таким ID
+     * @param id id
+     * @throws NullPointerException если нет эл-та с таким ID
+     */
+    public void checkId(Integer id){
+        List a;
+        boolean checker=false;
+        checker=!(hashtable.entrySet().stream().filter(x->x.getValue().getID().equals(id)).collect(Collectors.toList())).isEmpty();
+
+        if (checker=false) throw new NullPointerException();
+
+    }
+    /**
+     * Заменяет значение по ключу, если оно меньше
+     * @param key ключ
+     */
+    public void replaceIfLower(Integer key,Flat flat){
+
+        if (hashtable.get(key).compareTo(flat)>0){
+            hashtable.put(key,flat);
+            ResponseCreator.appendln("\u001B[30m"+"\u001B[33m"+"Квартира с ключом "+key+" была успешно заменена"+"\u001B[33m"+"\u001B[30m");
+        }else {ResponseCreator.appendln("\u001B[30m"+"\u001B[33m"+"Квартира с ключом "+key+" не была заменена, так как больше уже существующей");}
+
+    }
+
+    /**
+     * Генерирует ID
+     * @return ID
+     */
+    public Flat newId(Flat flat){
+        int id;
+        if (hashtable.isEmpty()) id=1;
+        int lastId = 0;
+        for (Flat f : hashtable.values()) {
+            lastId = Math.max(lastId, f.getID());
+        }
+        id= lastId + 1;
+        return new Flat(id, flat.getName(), flat.getCoordinates(), flat.getCreationDate(),flat.getArea(),flat.getNumberOfRooms(),flat.getFurnish(),flat.getView(),flat.getTransport(),flat.getHouse());
+    }
+
+    /**
+     * Считает кол-во элементов с определенной отделкой
+     * @param furnish определенная отделка
+     * @return количество эл-тов
+     */
+    public int countFurnish(String furnish){
+        int count=(int)hashtable.entrySet().stream().filter(x-> x.getValue().getFurnish().compareTo(Furnish.valueOf(furnish.toUpperCase()))>0).count();
+        return count;
+    }
+
+}
