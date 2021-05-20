@@ -9,19 +9,18 @@ import java.util.concurrent.Executors;
 public class DatabaseManager {
     // Table names
     public static final String FLAT_TABLE = "flat";
-    public static final String USER_TABLE = "my_user";
-    public static final String COORDINATES_TABLE = "coordinates";
+    public static final String USER_TABLE = "users";
     public static final String HOUSE_TABLE = "house";
     // FLAT_TABLE column names
     public static final String FLAT_TABLE_ID_COLUMN = "id";
     public static final String FLAT_TABLE_KEY_COLUMN = "key";
     public static final String FLAT_TABLE_NAME_COLUMN = "name";
-    public static final String FLAT_TABLE_COORDINATES_ID_COLUMN = "coordinates_id";
+    public static final String FLAT_TABLE_COORDINATES_COLUMN = "coordinates";
     public static final String FLAT_TABLE_CREATION_DATE_COLUMN = "creation_date";
     public static final String FLAT_TABLE_AREA_COLUMN = "area";
     public static final String FLAT_TABLE_NUMBER_OF_ROOMS_COLUMN = "number_of_rooms";
     public static final String FLAT_TABLE_FURNISH_COLUMN = "furnish";
-    public static final String FLAT_TABLE_WIEW_COLUMN = "wiew";
+    public static final String FLAT_TABLE_VIEW_COLUMN = "view";
     public static final String FLAT_TABLE_TRANSPORT_COLUMN="transport";
     public static final String FLAT_TABLE_HOUSE_ID_COLUMN = "house_id";
     public static final String FLAT_TABLE_USER_ID_COLUMN = "user_id";
@@ -29,11 +28,6 @@ public class DatabaseManager {
     public static final String USER_TABLE_ID_COLUMN = "id";
     public static final String USER_TABLE_USERNAME_COLUMN = "username";
     public static final String USER_TABLE_PASSWORD_COLUMN = "password";
-    // COORDINATES_TABLE column names
-    public static final String COORDINATES_TABLE_ID_COLUMN = "id";
-    public static final String COORDINATES_TABLE_FLAT_ID_COLUMN = "flat_id";
-    public static final String COORDINATES_TABLE_X_COLUMN = "x";
-    public static final String COORDINATES_TABLE_Y_COLUMN = "y";
     // HOUSE_TABLE column names
     public static final String HOUSE_TABLE_ID_COLUMN = "id";
     public static final String HOUSE_TABLE_NAME_COLUMN = "name";
@@ -44,7 +38,7 @@ public class DatabaseManager {
 
 
     private final String JDBC_DRIVER = "org.postgresql.Driver";
-    private final String url = "jdbc:postgresql://localhost:5432/studs";
+    private final String url = "jdbc:postgresql://localhost:2888/studs";
     private String user;
     private String password;
     private Connection connection;

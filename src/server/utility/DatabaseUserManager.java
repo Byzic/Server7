@@ -8,6 +8,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 //Класс, который работает с пользователями ии бд()
 public class DatabaseUserManager {
+    private final String SELECT_USER_BY_ID = "SELECT * FROM " + DatabaseManager.USER_TABLE +
+            " WHERE " + DatabaseManager.USER_TABLE_ID_COLUMN + " = ?";
     private final String SELECT_USER_BY_USERNAME = "SELECT * FROM " + DatabaseManager.USER_TABLE +
             " WHERE " + DatabaseManager.USER_TABLE_USERNAME_COLUMN + " = ?";
     private final String SELECT_USER_BY_USERNAME_AND_PASSWORD = SELECT_USER_BY_USERNAME + " AND " +
@@ -74,6 +76,28 @@ public class DatabaseUserManager {
         } finally {
             databaseManager.closePreparedStatement(preparedSelectUserByUsernameStatement);
         }
+    }
+
+    public User getUserById(long userID) throws SQLException {
+        User user;
+        PreparedStatement preparedStatement = null;
+        try {
+            preparedStatement = databaseManager.getPreparedStatement(SELECT_USER_BY_ID, false);
+            preparedStatement.setLong(1, userID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                user = new User(
+                        resultSet.getString(DatabaseManager.USER_TABLE_USERNAME_COLUMN),
+                        resultSet.getString(DatabaseManager.USER_TABLE_PASSWORD_COLUMN)
+                );
+            } else throw new SQLException();
+        } catch (SQLException exception) {
+            System.out.println("Произошла ошибка при выполнении запроса SELECT_USER_BY_ID!");
+            throw new SQLException();
+        } finally {
+            databaseManager.closePreparedStatement(preparedStatement);
+        }
+        return user;
     }
 
 }
