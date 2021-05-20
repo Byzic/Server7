@@ -1,6 +1,7 @@
 package server.commands;
 
 
+import common.User;
 import common.data.Flat;
 import exceptions.IncorrectValueException;
 import server.utility.CollectionManager;
@@ -25,7 +26,7 @@ public class InfoCommand extends AbstractCommand {
 
 
     @Override
-    public boolean execute(String argument, Flat flat) {
+    public boolean execute(String argument, Flat flat, User user) {
         try {
             if (!argument.isEmpty())throw new IncorrectValueException();
             ResponseCreator.appendln("\u001B[37m"+"\u001B[33m"+"Информация о коллекции"+"\u001B[33m"+"\u001B[37m");

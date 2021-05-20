@@ -17,10 +17,11 @@ public class CollectionManager {
     private Hashtable<Integer, Flat> hashtable=new Hashtable<>();
     private FileManager fileManager;
     private LocalDateTime lastInitTime;
+    DatabaseCollectionManager databaseCollectionManager;
 
 
-    public CollectionManager(FileManager fileManager) {
-        this.fileManager=fileManager;
+    public CollectionManager(DatabaseCollectionManager databaseCollectionManager) {
+        this.databaseCollectionManager = databaseCollectionManager;
         loadCollection();
     }
 
@@ -35,8 +36,9 @@ public class CollectionManager {
      * Читает коллекцию из файла
      */
     public void loadCollection() {
-        hashtable = fileManager.readCollection();
+        hashtable = databaseCollectionManager.getCollection();
         lastInitTime = LocalDateTime.now();
+        System.out.println("Коллекция загружена.");
 
     }
 

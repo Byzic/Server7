@@ -1,5 +1,6 @@
 package server.commands;
 
+import common.User;
 import common.data.Flat;
 import exceptions.EmptyArgumentException;
 import server.utility.CollectionManager;
@@ -14,7 +15,7 @@ public class ReplaceIfLowerCommand extends AbstractCommand {
 
     }
     @Override
-    public boolean execute(String argument, Flat flat) {
+    public boolean execute(String argument, Flat flat, User user) {
         try{
             if (argument.isEmpty()) throw new EmptyArgumentException();
             Integer key=Integer.parseInt(argument);

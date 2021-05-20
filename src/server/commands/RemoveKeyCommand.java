@@ -1,5 +1,6 @@
 package server.commands;
 
+import common.User;
 import common.data.Flat;
 import exceptions.EmptyArgumentException;
 import server.utility.CollectionManager;
@@ -22,7 +23,7 @@ public class RemoveKeyCommand extends AbstractCommand {
      * @return состояние выполнения команды
      */
     @Override
-    public boolean execute(String argument, Flat flat){// проверить ключ на наличие
+    public boolean execute(String argument, Flat flat, User user){// проверить ключ на наличие
         try{
             if (argument.isEmpty()) throw new EmptyArgumentException();
             Integer key=Integer.parseInt(argument);

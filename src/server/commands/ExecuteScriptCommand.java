@@ -1,6 +1,7 @@
 package server.commands;
 
 
+import common.User;
 import common.data.Flat;
 import exceptions.EmptyArgumentException;
 import server.utility.ResponseCreator;
@@ -18,7 +19,7 @@ public class ExecuteScriptCommand extends AbstractCommand {
      * @return состояние выполнения команды
      */
     @Override
-    public boolean execute(String argument, Flat flat){
+    public boolean execute(String argument, Flat flat, User user){
         try{
             if (argument.isEmpty()) throw new EmptyArgumentException();
             return true;

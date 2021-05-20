@@ -1,5 +1,6 @@
 package server.commands;
 
+import common.User;
 import common.data.Flat;
 import exceptions.EmptyArgumentException;
 import server.utility.CollectionManager;
@@ -21,7 +22,7 @@ public class InsertCommand extends AbstractCommand {
      * @return состояние выполнения команды
      */
     @Override
-    public boolean execute(String argument, Flat flat){
+    public boolean execute(String argument, Flat flat, User user){
         try{
             if (argument.isEmpty()) throw new EmptyArgumentException();
             int key =Integer.parseInt(argument);//доделать проверку на наличие уже такого ключа в коллекции

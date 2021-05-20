@@ -1,5 +1,6 @@
 package server.commands;
 
+import common.User;
 import common.data.Flat;
 import exceptions.EmptyArgumentException;
 import server.utility.CollectionManager;
@@ -22,7 +23,7 @@ public class CountGreaterThanFurnishCommand extends AbstractCommand {
      * @return состояние выполнения команды
      */
     @Override
-    public boolean execute(String argument, Flat flat) {
+    public boolean execute(String argument, Flat flat, User user) {
         int count=0;
         try{
             if (argument.isEmpty()) throw new EmptyArgumentException();

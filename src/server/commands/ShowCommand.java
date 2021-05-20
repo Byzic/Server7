@@ -1,5 +1,6 @@
 package server.commands;
 
+import common.User;
 import common.data.Flat;
 import exceptions.IncorrectValueException;
 import server.utility.CollectionManager;
@@ -16,7 +17,7 @@ public class ShowCommand extends AbstractCommand{
         this.collectionManager=collectionManager;
     }
     @Override
-    public boolean execute(String argument, Flat flat){
+    public boolean execute(String argument, Flat flat, User user){
         try {
             if (!argument.isEmpty())throw new IncorrectValueException();
             ResponseCreator.appendln(collectionManager.getStringElements());

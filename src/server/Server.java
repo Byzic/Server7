@@ -3,7 +3,7 @@ package server;
 import common.Request;
 import common.Response;
 import common.ResponseCode;
-import server.utility.RequestProcessing;
+import server.utility.*;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -12,103 +12,84 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.Scanner;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 
 public class Server {
     private int port;
-    private RequestProcessing requestProcessing;
+    private CommandManager commandManager;
     ServerSocket serverSocket;
+    Scanner scanner;
     Socket clientSocket;
-    private Scanner scanner;
-    public Server(int port, RequestProcessing requestProcessing){
-        this.port=port;
-        this.requestProcessing=requestProcessing;
+    private boolean isStopped = false;
+    private RequestManager requestManager;
+    Request userRequest = null;
+    private ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
+
+    public Server(int port, RequestManager requestManager) {
+        this.port = port;
+        this.requestManager = requestManager;
     }
 
-    public void run(){
-        try {scanner = new Scanner(System.in);
-            Runnable userInput = () -> {
-                try {
-                    while (true) {
-                        String[] userCommand = (scanner.nextLine().trim() + " ").split(" ", 2);
-                        userCommand[1] = userCommand[1].trim();
-                        if (!userCommand[0].equals("save") && !userCommand[0].equals("exit")) {
-                            System.out.println("Сервер не может сам принимать такую команду!");
-                            return;
-                        }
-                        if (userCommand[0].equals("exit")){
-                            System.out.println("Сервер закончил работу");
-                            System.exit(0);
-                        }
-                        Response responseToUser = requestProcessing.processing(new Request(userCommand[0], userCommand[1]));
-                        System.out.println(responseToUser.getResponseBody());
+    public void run() {
+        do_CTRL_C_Thread();
+        openServerSocket();
+        while (true) {
+            Socket clientSocket = connectToClient();
+            try {
+                if (!cachedThreadPool.submit(() -> {
+
+                    Response responseToUser = null;
+                    boolean stopFlag = false;
+                    try (ObjectInputStream clientReader = new ObjectInputStream(clientSocket.getInputStream());
+                    ) {
+                        userRequest = (Request) clientReader.readObject();
+                        System.out.println("Получена команда " + userRequest.getCommandName());
+                        return true;
+                    } catch (ClassNotFoundException exception) {
+                        System.out.println("Произошла ошибка при чтении полученных данных!");
                     }
-                } catch (Exception e) {}
-            };
-            Thread thread = new Thread(userInput);
-            thread.start();
-            openServerSocket();
-            boolean processingStatus = true;
-            while (processingStatus) {
-                try (Socket clientSocket = connectToClient()) {
-                    processingStatus = workingWithClientsRequest();
-
-
-                } catch (IOException e) {
-                    System.out.println("Произошла ошибка при попытке использовать порт " + port);
-                }
+                    return false;
+                }).get()) break;                 //чтение запроса
+                new RequestProcessingThread(requestManager, userRequest, clientSocket);
+            } catch (InterruptedException | ExecutionException e) {
+                System.out.println("При чтении запроса произошла ошибка многопоточности!");
             }
-            serverSocket.close();
-            System.out.println("Работа сервера успешно завершена.");
-        }catch (IOException e) {
-            System.err.println("Произошла ошибка при попытке завершить соединение с клиентом!");
+
         }
 
 
     }
-    private void openServerSocket()  {
+
+
+    private void openServerSocket() {
         try {
             System.out.println("Запуск сервера...");
-            serverSocket =new ServerSocket(port);
+            serverSocket = new ServerSocket(port);
             System.out.println("Сервер успешно запущен");
         } catch (IOException e) {
             System.err.println("Произошла ошибка при попытке использовать порт '" + port + "'!");
         }
     }
-    private Socket connectToClient(){
+
+    private Socket connectToClient() {
         try {
-            clientSocket= serverSocket.accept();
+            clientSocket = serverSocket.accept();
             System.out.println("Соединение с клиентом успешно установлено");
             return clientSocket;
-        }catch (IOException e){
+        } catch (IOException e) {
             System.err.println("Ошибка при соединении с клиентом");
         }
         //убрать следующую строчку
         return clientSocket;
 
     }
-    private boolean workingWithClientsRequest() {
-        Request userRequest = null;
-        Response responseToUser = null;
-        try (ObjectInputStream clientReader = new ObjectInputStream(clientSocket.getInputStream());
-             ObjectOutputStream clientWriter = new ObjectOutputStream(clientSocket.getOutputStream())) {
-            do {
-                userRequest = (Request) clientReader.readObject();
-                System.out.println("Обрабатывается команда " + userRequest.getCommandName());
-                //запрос такой-то успешно обработан
-                responseToUser = requestProcessing.processing(userRequest);//обрабатываем запрос, отдаем ответ сервера
-                clientWriter.writeObject(responseToUser);
-                clientWriter.flush();
-
-            } while (responseToUser.getResponseCode() != ResponseCode.SERVER_EXIT);
-        } catch (SocketException e) {
-            System.err.println("Соединение с клиентом разорвано");
-
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException exception) {
-            if (userRequest == null) {
-                System.out.println("Непредвиденный разрыв соединения с клиентом!");}
-        }
-        return true;
+    private void do_CTRL_C_Thread() {
+        scanner = new Scanner(System.in);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("Завершаю программу.");
+        }));
     }
 }

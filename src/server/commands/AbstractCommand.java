@@ -1,5 +1,6 @@
 package server.commands;
 
+import common.User;
 import common.data.Flat;
 
 import java.util.Objects;
@@ -14,7 +15,7 @@ public abstract class AbstractCommand {
         this.name = name;
         this.description = description;
     }
-    public abstract boolean execute(String argument, Flat flat);
+    public abstract boolean execute(String argument, Flat flat, User user);
     /**
      * @return Имя команды
      */
