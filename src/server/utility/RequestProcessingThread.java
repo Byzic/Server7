@@ -6,27 +6,31 @@ import common.ResponseCode;
 import common.User;
 
 
+import java.io.ObjectOutputStream;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.concurrent.ForkJoinPool;
 
-public class RequestProcessingThread extends Thread {
-    Request request;
+public class RequestProcessingThread extends Thread{
     private RequestManager requestManager;
-    private Response response;
-    Socket clientSocket;
+    private Request request;
+    private InetAddress address;
+    private int port;
+    private DatagramSocket socket;
     private ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
 
-
-    public RequestProcessingThread(RequestManager requestManager, Request request, Socket clientSocket){
-        this.requestManager=requestManager;
-        this.request=request;
-        this.clientSocket=clientSocket;
-
+    public RequestProcessingThread(RequestManager requestManager, Request request, InetAddress address, int port, DatagramSocket socket) {
+        this.requestManager = requestManager;
+        this.request = request;
+        this.address = address;
+        this.port = port;
+        this.socket = socket;
     }
     @Override
     public void run() {
-        response= requestManager.manage(request);
-        forkJoinPool.invoke(new ResponseWriteAction(response,clientSocket));
+        Response response= requestManager.manage(request);
+        forkJoinPool.invoke(new ResponseWriteAction(response, address, port, socket));
 
 
 

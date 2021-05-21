@@ -22,7 +22,6 @@ public class CommandManager {
     private AbstractCommand updateIdCommand;
     private AbstractCommand removeKeyCommand;
     private AbstractCommand executeScriptCommand;
-    private AbstractCommand saveCommand;
     private AbstractCommand clearCommand;
     private AbstractCommand replaceIfGreaterCommand;
     private AbstractCommand replaceIfLowerCommand;
@@ -37,7 +36,7 @@ public class CommandManager {
 
 
     public CommandManager(AbstractCommand exitCommand,AbstractCommand helpCommand, AbstractCommand infoCommand, AbstractCommand showCommand, AbstractCommand insertCommand, AbstractCommand updateIdCommand,
-                          AbstractCommand removeKeyCommand, AbstractCommand saveCommand, AbstractCommand clearCommand, AbstractCommand executeScriptCommand,
+                          AbstractCommand removeKeyCommand, AbstractCommand clearCommand, AbstractCommand executeScriptCommand,
                           AbstractCommand replaceIfGreaterCommand, AbstractCommand replaceIfLowerCommand, AbstractCommand removeLowerKeyCommand, AbstractCommand removeAllByNumberOfRoomsCommand,
                           AbstractCommand countFurnishCommand, AbstractCommand filterNameCommand,AbstractCommand serverExitCommand,AbstractCommand loginCommand,AbstractCommand registerCommand) {
         this.exitCommand=exitCommand;
@@ -54,7 +53,6 @@ public class CommandManager {
         commands.add(updateIdCommand);
         this.removeKeyCommand = removeKeyCommand;
         commands.add(removeKeyCommand);
-        this.saveCommand = saveCommand;
 
         this.clearCommand = clearCommand;
         commands.add(clearCommand);
@@ -120,14 +118,6 @@ public class CommandManager {
      */
     public boolean clear(String argument, Flat flat,User user){
         return clearCommand.execute(argument, flat,user);
-    }
-    /**
-     * Запускает команду сохранения коллекции в файл
-     * @param argument это переданный аргумент
-     * @return состояние работы программы
-     */
-    public boolean save(String argument, Flat flat,User user){
-        return saveCommand.execute(argument,  flat,user);
     }
     /**
      * Запускает команду добавления нового элемента

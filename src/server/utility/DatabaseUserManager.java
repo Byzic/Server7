@@ -59,8 +59,8 @@ public class DatabaseUserManager {
     }
 
 
-    public long getUserIdByUsername(User user) throws DatabaseHandlingException {
-        long userId;
+    public int getUserIdByUsername(User user) throws DatabaseHandlingException {
+        int userId;
         PreparedStatement preparedSelectUserByUsernameStatement = null;
         try {
             preparedSelectUserByUsernameStatement =
@@ -68,7 +68,7 @@ public class DatabaseUserManager {
             preparedSelectUserByUsernameStatement.setString(1, user.getLogin());
             ResultSet resultSet = preparedSelectUserByUsernameStatement.executeQuery();
             if (resultSet.next()) {
-                userId = resultSet.getLong(DatabaseManager.USER_TABLE_ID_COLUMN);
+                userId = resultSet.getInt(DatabaseManager.USER_TABLE_ID_COLUMN);
             } else userId = -1;
             return userId;
         } catch (SQLException exception) {

@@ -2,6 +2,7 @@ package server.utility;
 
 import common.data.Flat;
 import common.data.Furnish;
+import exceptions.СomparisonExeption;
 import exceptions.KeyException;
 
 import java.time.LocalDateTime;
@@ -28,9 +29,7 @@ public class CollectionManager {
     /**
      * Записывает коллекцию в файл
      */
-    public void saveToFile(){
-        fileManager.writeCollection(hashtable);
-    }
+
 
     /**
      * Читает коллекцию из файла
@@ -40,6 +39,9 @@ public class CollectionManager {
         lastInitTime = LocalDateTime.now();
         System.out.println("Коллекция загружена.");
 
+    }
+    public Hashtable<Integer,Flat> getCollection(){
+        return hashtable;
     }
 
     /**
@@ -91,7 +93,7 @@ public class CollectionManager {
      * @param flat значение
      */
     public void insertNew(Integer key, Flat flat){
-        hashtable.put(key,newId(flat));
+        hashtable.put(key,flat);
     }
 
     /**
@@ -114,7 +116,7 @@ public class CollectionManager {
      */
     public void update(Integer key, Flat flat){
         hashtable.remove(key);
-        hashtable.put(key,newId(flat));
+        hashtable.put(key,flat);
 
     }
 
@@ -128,8 +130,13 @@ public class CollectionManager {
             hashtable.remove(key);
             ResponseCreator.appendln("\u001B[37m"+"\u001B[33m"+"Элемент с ключом "+ key+" успешно удален"+"\u001B[33m"+"\u001B[37m");
         }catch (KeyException e){
-            ResponseCreator.error("Элемента с таким ключом не существует");
+
         }
+    }
+    public List<Integer> getKeysLikeNumber(Integer number){
+        List<Integer> a;
+        a=hashtable.entrySet().stream().filter(x-> x.getValue().getNumberOfRooms().equals(number)).map(x->x.getKey()).collect(Collectors.toList());
+        return a;
     }
 
     /**
@@ -145,6 +152,11 @@ public class CollectionManager {
         }
         return a.size();
 
+    }
+    public List<Integer> getLowerKey(Integer key){
+        List<Integer> a;
+        a=hashtable.entrySet().stream().filter(x-> x.getKey().intValue()<key.intValue()).map(x->x.getKey()).collect(Collectors.toList());
+        return a;
     }
 
     /**
@@ -176,15 +188,15 @@ public class CollectionManager {
      * Заменяет значение по ключу, если оно больше
      * @param key ключ
      */
-    public void replaceIfGreater(Integer key,Flat flat){
+    public void replaceIfGreater(Integer key,Flat flat) throws СomparisonExeption {
         try{
             if (hashtable.get(key).compareTo(flat)<0){
-                hashtable.put(key,newId(flat));
+                hashtable.put(key,flat);
                 ResponseCreator.appendln("\u001B[37m"+"\u001B[33m"+"Квартира с ключом "+key+" была успешно заменена"+"\u001B[33m"+"\u001B[37m");
 
             }
-            else {ResponseCreator.appendln("\u001B[37m"+"\u001B[33m"+"Квартира с ключом "+key+" не была заменена, так как меньше или равна уже существующей"+"\u001B[33m"+"\u001B[37m");
-        }}catch(NullPointerException e){
+            else {throw new СomparisonExeption(); }
+        }catch(NullPointerException e){
             ResponseCreator.error("Элемента с таким ключом не существует");
         }
 
@@ -200,13 +212,19 @@ public class CollectionManager {
             if (!hashtable.containsKey(key)) {throw new NullPointerException();}
 
     }
+
+    public Flat getCollectionWithKey(int key){
+        return hashtable.get(key);
+    }
     /**
      * Проверяет, есть ли в коллекции элемент с данным ключом
      * @param key ключ
      * @throws NullPointerException если ключ есть
      */
     public void Key(Integer key){
-        if (hashtable.containsKey(key)) {throw new NullPointerException();}
+        if (hashtable.containsKey(key)) {
+            ResponseCreator.appendln(hashtable);
+            throw new NullPointerException();}
     }
 
     /**
@@ -226,19 +244,18 @@ public class CollectionManager {
      * Заменяет значение по ключу, если оно меньше
      * @param key ключ
      */
-    public void replaceIfLower(Integer key,Flat flat){
+    public void replaceIfLower(Integer key,Flat flat) throws СomparisonExeption {
 
         if (hashtable.get(key).compareTo(flat)>0){
             hashtable.put(key,flat);
             ResponseCreator.appendln("\u001B[30m"+"\u001B[33m"+"Квартира с ключом "+key+" была успешно заменена"+"\u001B[33m"+"\u001B[30m");
-        }else {ResponseCreator.appendln("\u001B[30m"+"\u001B[33m"+"Квартира с ключом "+key+" не была заменена, так как больше уже существующей");}
-
+        }else {throw new СomparisonExeption(); }
     }
 
     /**
      * Генерирует ID
      * @return ID
-     */
+
     public Flat newId(Flat flat){
         int id;
         if (hashtable.isEmpty()) id=1;
@@ -247,8 +264,8 @@ public class CollectionManager {
             lastId = Math.max(lastId, f.getID());
         }
         id= lastId + 1;
-        return new Flat(id, flat.getName(), flat.getCoordinates(), flat.getCreationDate(),flat.getArea(),flat.getNumberOfRooms(),flat.getFurnish(),flat.getView(),flat.getTransport(),flat.getHouse());
-    }
+        return new Flat(id, flat.getName(), flat.getCoordinates(), flat.getCreationDate(),flat.getArea(),flat.getNumberOfRooms(),flat.getFurnish(),flat.getView(),flat.getTransport(),flat.getHouse(),user);
+    }*/
 
     /**
      * Считает кол-во элементов с определенной отделкой

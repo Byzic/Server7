@@ -32,7 +32,7 @@ public class DatabaseManager {
     public static final String HOUSE_TABLE_ID_COLUMN = "id";
     public static final String HOUSE_TABLE_NAME_COLUMN = "name";
     public static final String HOUSE_TABLE_YEAR_COLUMN = "year";
-    public static final String HOUSE_TABLE_NUMBER_OF_FLOORS_COLUMN = "numberOfFloors";
+    public static final String HOUSE_TABLE_NUMBER_OF_FLOORS_COLUMN = "number_of_floors";
 
 
 
@@ -53,7 +53,7 @@ public class DatabaseManager {
             System.out.println("Введите логин:");
             this.user = scanner.nextLine();
             System.out.println("Введите пароль:");
-            this.password = String.valueOf(console.readPassword());
+            this.password = "ruz426";//String.valueOf(console.readPassword());
             try{
                 Class.forName(JDBC_DRIVER);
                 connection = DriverManager.getConnection(url, user, password);
@@ -84,6 +84,46 @@ public class DatabaseManager {
             throw new SQLException(exception);
         }
         return preparedStatement; //!
+    }
+    public void setAutoCommit() {
+        try {
+            if (connection == null) throw new SQLException();
+            connection.setAutoCommit(true);
+        } catch (SQLException e) {
+            System.out.println("Произошла ошибка при установлении 'auto_commit'!");
+        }
+    }
+    public void setCommit() {
+        try {
+            if (connection == null) throw new SQLException();
+            connection.setAutoCommit(false);
+        } catch (SQLException e) {
+            System.out.println("Произошла ошибка при установлении 'commit'!");
+        }
+    }
+    public void commit() {
+        try {
+            if (connection == null) throw new SQLException();
+            connection.commit();
+        } catch (SQLException e) {
+            System.out.println("Произошла ошибка при подтверждении нового состояния базы данных!");
+        }
+    }
+    public void rollback() {
+        try {
+            if (connection == null) throw new SQLException();
+            connection.rollback();
+        } catch (SQLException e) {
+            System.out.println("Произошла ошибка при возврате исходного состояния базы данных!");
+        }
+    }
+     public void setSavepoint() {
+        try {
+            if (connection == null) throw new SQLException();
+            connection.setSavepoint();
+        } catch (SQLException e) {
+            System.out.println("Произошла ошибка при сохранении состояния базы данных!");
+        }
     }
 
     public void closePreparedStatement(PreparedStatement sqlStatement) {

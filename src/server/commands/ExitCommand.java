@@ -26,7 +26,8 @@ public class ExitCommand extends AbstractCommand {
         public boolean execute(String argument, Flat flat, User user){
             try {
                 if (!argument.isEmpty())throw new IncorrectValueException();
-                collectionManager.saveToFile();
+                ResponseCreator.appendln("Клиент "+user.getLogin()+" завершил свою работу");
+
                 return true;
             }
             catch (

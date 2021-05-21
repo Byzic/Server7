@@ -16,22 +16,22 @@ public class App {
                 new HelpCommand(),
                 new InfoCommand(collectionManager),
                 new ShowCommand(collectionManager),
-                new InsertCommand(collectionManager),
-                new UpdateCommand(collectionManager),
-                new RemoveKeyCommand(collectionManager),
-                new SaveCommand(collectionManager),
-                new ClearCommand(collectionManager),
+                new InsertCommand(collectionManager,databaseCollectionManager),
+                new UpdateCommand(collectionManager,databaseCollectionManager),
+                new RemoveKeyCommand(collectionManager,databaseCollectionManager),
+                new ClearCommand(collectionManager,databaseCollectionManager),
                 new ExecuteScriptCommand(),
-                new ReplaceIfGreaterCommand(collectionManager),
-                new ReplaceIfLowerCommand(collectionManager),
-                new RemoveLowerKeyCommand(collectionManager),
-                new RemoveAllByNumberOfRoomsCommand(collectionManager),
+                new ReplaceIfGreaterCommand(collectionManager,databaseCollectionManager),
+                new ReplaceIfLowerCommand(collectionManager,databaseCollectionManager),
+                new RemoveLowerKeyCommand(collectionManager,databaseCollectionManager),
+                new RemoveAllByNumberOfRoomsCommand(collectionManager,databaseCollectionManager),
                 new CountGreaterThanFurnishCommand(collectionManager),
-                new FilterNameCommand(collectionManager),new ServerExitCommand(),
+                new FilterNameCommand(collectionManager),
+                new ServerExitCommand(),
                 new LoginCommand(databaseUserManager),
                 new RegisterCommand(databaseUserManager));
         RequestManager requestManager=new RequestManager(commandManager);
-        Server server=new Server(PORT,requestManager);
+        Serverr server=new Serverr(PORT,requestManager);
         server.run();
         databaseManager.closeConnection();
 

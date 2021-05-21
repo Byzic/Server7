@@ -26,6 +26,7 @@ public class Server {
     private boolean isStopped = false;
     private RequestManager requestManager;
     Request userRequest = null;
+    ObjectOutputStream oos;
     private ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
 
     public Server(int port, RequestManager requestManager) {
@@ -43,9 +44,11 @@ public class Server {
 
                     Response responseToUser = null;
                     boolean stopFlag = false;
-                    try (ObjectInputStream clientReader = new ObjectInputStream(clientSocket.getInputStream());
-                    ) {
+                    try (ObjectInputStream clientReader = new ObjectInputStream(clientSocket.getInputStream());) {
+
+                        ObjectOutputStream clientWriter = new ObjectOutputStream(clientSocket.getOutputStream());
                         userRequest = (Request) clientReader.readObject();
+                        oos=clientWriter;
                         System.out.println("Получена команда " + userRequest.getCommandName());
                         return true;
                     } catch (ClassNotFoundException exception) {
@@ -53,7 +56,7 @@ public class Server {
                     }
                     return false;
                 }).get()) break;                 //чтение запроса
-                new RequestProcessingThread(requestManager, userRequest, clientSocket);
+                //new RequestProcessingThread(requestManager, userRequest, oos).start();
             } catch (InterruptedException | ExecutionException e) {
                 System.out.println("При чтении запроса произошла ошибка многопоточности!");
             }
