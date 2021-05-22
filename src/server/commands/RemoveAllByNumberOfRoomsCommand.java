@@ -33,7 +33,8 @@ public class RemoveAllByNumberOfRoomsCommand extends AbstractCommand {
     @Override
     public boolean execute(String argument, Flat flat, User user) {
         try{int count=0;
-            if (!argument.isEmpty() || flat == null) throw new EmptyArgumentException();
+            if (argument.isEmpty() ) throw new EmptyArgumentException();
+
             Integer numberOfRooms=Integer.parseInt(argument);
             List<Integer> keys = collectionManager.getKeysLikeNumber(numberOfRooms);
             //int i=collectionManager.removeLowerKey(key);
@@ -54,6 +55,7 @@ public class RemoveAllByNumberOfRoomsCommand extends AbstractCommand {
         }catch (EmptyArgumentException e) {
             ResponseCreator.error("У этой команды должен быть аргумент(ключ для удаления элементов)" );
         }catch (NumberFormatException e){
+
             ResponseCreator.error("Формат введенного аргумента неверен. Он должен быть целым.");
         }catch (NullPointerException e){
             ResponseCreator.error("Элемента с таким ключом не существует");

@@ -27,16 +27,19 @@ public class ReplaceIfGreaterCommand extends AbstractCommand {
     @Override
     public boolean execute(String argument, Flat flat, User user) {
         try{
-            if (!argument.isEmpty() || flat == null) throw new EmptyArgumentException();
+            if (argument.isEmpty() || flat == null) throw new EmptyArgumentException();
             Integer key=Integer.parseInt(argument);
             Flat  oldFlat= collectionManager.getCollectionWithKey(key);
             int id= oldFlat.getID();
-            if (!oldFlat.getOwner().equals(user)) throw new PermissionDeniedException();
+            boolean a=(oldFlat.getOwner().getLogin().equals(flat.getOwner().getLogin())&&oldFlat.getOwner().getPassword().equals(flat.getOwner().getPassword()));
+            boolean b=(oldFlat.getOwner().equals(user));
+            if (!(a&!b|!a&b)) throw new PermissionDeniedException();
             if (!databaseCollectionManager.checkFlatByIdAndUserId(oldFlat.getID(), user)) throw new IllegalDatabaseEditException();
             collectionManager.checkKey(key);
-            collectionManager.replaceIfGreater(key,flat);
-            databaseCollectionManager.updateFlatByID(id,flat);
 
+            databaseCollectionManager.updateFlatByID(id,flat);
+            flat.setID(oldFlat.getID());
+            collectionManager.replaceIfGreater(key,flat);
             return true;
         }catch (EmptyArgumentException e) {
             ResponseCreator.error("У этой команды должен быть аргумент(ключ для удаления элементов)" );

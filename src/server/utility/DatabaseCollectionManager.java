@@ -63,8 +63,8 @@ public class DatabaseCollectionManager {
     private final String UPDATE_FLAT_TRANSPORT_BY_ID="UPDATE " + DatabaseManager.FLAT_TABLE + " SET " +
             DatabaseManager.FLAT_TABLE_TRANSPORT_COLUMN + " = ?" + " WHERE " +
             DatabaseManager.FLAT_TABLE_ID_COLUMN + " = ?";
-    private final String UPDATE_HOUSE_BY_ID="UPDATE"+ DatabaseManager.HOUSE_TABLE+" SET "+DatabaseManager.HOUSE_TABLE_NAME_COLUMN+ " = ?, " +
-            DatabaseManager.HOUSE_TABLE_YEAR_COLUMN+ " = ?, " +DatabaseManager.HOUSE_TABLE_NUMBER_OF_FLOORS_COLUMN+ " = ?, " +" WHERE " +
+    private final String UPDATE_HOUSE_BY_ID="UPDATE "+ DatabaseManager.HOUSE_TABLE+" SET "+DatabaseManager.HOUSE_TABLE_NAME_COLUMN+ " = ?, " +
+            DatabaseManager.HOUSE_TABLE_YEAR_COLUMN+ " = ?, " +DatabaseManager.HOUSE_TABLE_NUMBER_OF_FLOORS_COLUMN+ " = ?" +" WHERE " +
             DatabaseManager.HOUSE_TABLE_ID_COLUMN+" = ?";
 
 
@@ -101,7 +101,7 @@ public class DatabaseCollectionManager {
         PreparedStatement updateFlatFurnish = null;
         PreparedStatement updateFlatView = null;
         PreparedStatement updateFlatTransport = null;
-        PreparedStatement updateFlatHouse=null;
+        PreparedStatement updateFlatHouse= null;
         try {
             databaseManager.setCommit();
             databaseManager.setSavepoint();
@@ -145,6 +145,7 @@ public class DatabaseCollectionManager {
 
             databaseManager.commit();
         } catch (SQLException exception) {
+            exception.printStackTrace();
             System.out.println("Произошла ошибка при выполнении группы запросов на обновление объекта!");
             databaseManager.rollback();
             throw new DatabaseManagerException();
@@ -156,6 +157,7 @@ public class DatabaseCollectionManager {
             databaseManager.closePreparedStatement(updateFlatFurnish);
             databaseManager.closePreparedStatement(updateFlatView);
             databaseManager.closePreparedStatement(updateFlatTransport);
+            databaseManager.closePreparedStatement(updateFlatHouse);
             databaseManager.setAutoCommit();
         }
     }
@@ -197,6 +199,7 @@ public class DatabaseCollectionManager {
         try {
             preparedStatement = databaseManager.getPreparedStatement(SELECT_FLAT_BY_ID_AND_USER_ID, false);
             preparedStatement.setInt(1, flatID);
+            System.out.println(flatID+" "+ databaseUserManager.getUserIdByUsername(user));
             preparedStatement.setInt(2, databaseUserManager.getUserIdByUsername(user));
             ResultSet resultSet = preparedStatement.executeQuery();
             return resultSet.next();
@@ -226,6 +229,7 @@ public class DatabaseCollectionManager {
             databaseManager.closePreparedStatement(deleteHouse);
         }
     }
+
 
 
 

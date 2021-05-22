@@ -1,5 +1,7 @@
 package common;
 
+import server.utility.PasswordHasher;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -19,6 +21,7 @@ public class User implements Serializable {
     public String getPassword() {
         return password;
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

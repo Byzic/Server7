@@ -38,6 +38,9 @@ public class Flat implements Comparable<Flat>, Serializable {
     /**
      * @return ID квартиры
      */
+    public void setID(int ID){
+        this.id=ID;
+    }
     public Integer getID(){
         return id;
     }

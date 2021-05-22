@@ -29,7 +29,7 @@ public class RemoveLowerKeyCommand extends AbstractCommand {
     @Override
     public boolean execute(String argument, Flat flat, User user){
         try{int count=0;
-            if (!argument.isEmpty() || flat == null) throw new EmptyArgumentException();
+            if (argument.isEmpty() ) throw new EmptyArgumentException();
             Integer key=Integer.parseInt(argument);
             List<Integer> keys = collectionManager.getLowerKey(key);
             //int i=collectionManager.removeLowerKey(key);
