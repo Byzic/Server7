@@ -41,7 +41,9 @@ public class RemoveAllByNumberOfRoomsCommand extends AbstractCommand {
             if (!keys.isEmpty()) {
                 count=0;
                 for (int i : keys) {
-                    if (!collectionManager.getCollectionWithKey(i).getOwner().equals(user)) continue;
+                    Flat f=collectionManager.getCollectionWithKey(i);
+                    boolean b=(f.getOwner().equals(user));
+                    if (!(b)) continue;
                     if (!databaseCollectionManager.checkFlatByIdAndUserId(collectionManager.getCollectionWithKey(i).getID(), user))
                         throw new IllegalDatabaseEditException();
                     databaseCollectionManager.deleteFlatById(collectionManager.getCollectionWithKey(i).getID());

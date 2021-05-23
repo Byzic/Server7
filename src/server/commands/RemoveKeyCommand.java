@@ -8,6 +8,7 @@ import exceptions.IllegalDatabaseEditException;
 import exceptions.PermissionDeniedException;
 import server.utility.CollectionManager;
 import server.utility.DatabaseCollectionManager;
+import server.utility.PasswordHasher;
 import server.utility.ResponseCreator;
 
 
@@ -36,7 +37,8 @@ public class RemoveKeyCommand extends AbstractCommand {
 
             collectionManager.checkKey(key);
             Flat f=collectionManager.getCollectionWithKey(key);
-            if (!f.getOwner().equals(user)) throw new PermissionDeniedException();
+            boolean b=(f.getOwner().equals(user));
+            if (!(b))throw new PermissionDeniedException();
             if (!databaseCollectionManager.checkFlatByIdAndUserId(f.getID(), user)) throw new IllegalDatabaseEditException();
             databaseCollectionManager.deleteFlatById(f.getID());
             collectionManager.removeKey(key);

@@ -22,10 +22,10 @@ public class HelpCommand extends AbstractCommand {
     public boolean execute(String argument, Flat flat, User user) {
         long start= System.nanoTime();
         long time=0;
-        while (time<1.5){
+        /*while (time<1.5){
             long finish= System.nanoTime();
             time=(finish-start)/ 1000000000;
-        }
+        }*/
         try {
 
          if (!argument.isEmpty())throw new IncorrectValueException();

@@ -35,9 +35,8 @@ public class UpdateCommand extends AbstractCommand {
             collectionManager.checkId(id);
             int key = collectionManager.getKeyById(id);
             Flat  oldFlat= collectionManager.getCollectionWithKey(key);
-            boolean a=(oldFlat.getOwner().getLogin().equals(flat.getOwner().getLogin())&&oldFlat.getOwner().getPassword().equals(flat.getOwner().getPassword()));
             boolean b=(oldFlat.getOwner().equals(user));
-            if (!(a&!b|!a&b))  throw new PermissionDeniedException();
+            if (!(b))  throw new PermissionDeniedException();
             if (!databaseCollectionManager.checkFlatByIdAndUserId(oldFlat.getID(), user)) throw new IllegalDatabaseEditException();
             databaseCollectionManager.updateFlatByID(id, flat);
             collectionManager.update(key,flat);

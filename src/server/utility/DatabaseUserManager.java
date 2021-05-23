@@ -17,7 +17,8 @@ public class DatabaseUserManager {
     private final String INSERT_USER = "INSERT INTO " +
             DatabaseManager.USER_TABLE + " (" +
             DatabaseManager.USER_TABLE_USERNAME_COLUMN + ", " +
-            DatabaseManager.USER_TABLE_PASSWORD_COLUMN + ") VALUES (?, ?)";
+            DatabaseManager.USER_TABLE_PASSWORD_COLUMN + ", " +DatabaseManager.USER_TABLE_ONLINE_COLUMN+") VALUES (?, ?, ?)";
+    private final String UPDATE_ONLINE_COLUMN="UPDATE "+DatabaseManager.USER_TABLE+" SET "+DatabaseManager.USER_TABLE_ONLINE_COLUMN+" WHERE "+DatabaseManager.USER_TABLE_USERNAME_COLUMN+ " = ? AND "+DatabaseManager.USER_TABLE_PASSWORD_COLUMN+ " = ?";
 
 
 
@@ -41,6 +42,19 @@ public class DatabaseUserManager {
             databaseManager.closePreparedStatement(preparedSelectUserByUsernameAndPasswordStatement);
         }
     }
+    public void setOnlineColumnTrue(User user){
+        PreparedStatement preparedOnlineColumnStatement=null;
+        try{
+            preparedOnlineColumnStatement=databaseManager.getPreparedStatement(UPDATE_ONLINE_COLUMN,false);
+            preparedOnlineColumnStatement.setString(2,user.getLogin());
+            preparedOnlineColumnStatement.setString(3, user.getPassword());
+            preparedOnlineColumnStatement.setBoolean(1, true);
+        }catch (SQLException exception){
+
+        } finally {
+        databaseManager.closePreparedStatement(preparedOnlineColumnStatement);
+        }
+    }
     public boolean insertUser(User user) throws DatabaseHandlingException {
         PreparedStatement preparedInsertUserStatement = null;
         try {
@@ -49,6 +63,7 @@ public class DatabaseUserManager {
                     databaseManager.getPreparedStatement(INSERT_USER, false);
             preparedInsertUserStatement.setString(1, user.getLogin());
             preparedInsertUserStatement.setString(2, user.getPassword());
+            preparedInsertUserStatement.setBoolean(3, true);
             if (preparedInsertUserStatement.executeUpdate() == 0) throw new SQLException();
             return true;
         } catch (SQLException exception) {

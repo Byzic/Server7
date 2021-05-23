@@ -13,7 +13,7 @@ public class RequestManager {
         this.commandManager = commandManager;
     }
     public Response manage(Request request){
-        User hashUser=new User(request.getUser().getLogin(), PasswordHasher.hashPassword(request.getUser().getPassword()+"!!!(*_*)!!!"));
+        User hashUser=new User(request.getUser().getLogin(), request.getUser().getPassword());
         ResponseCode responseCode = executeCommand(request.getCommandName(), request.getArgument(), request.getObjectArgument(), hashUser);
         return new Response(responseCode, ResponseCreator.getAndClear());
 

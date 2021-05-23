@@ -223,7 +223,6 @@ public class CollectionManager {
      */
     public void Key(Integer key){
         if (hashtable.containsKey(key)) {
-            ResponseCreator.appendln(hashtable);
             throw new NullPointerException();}
     }
 

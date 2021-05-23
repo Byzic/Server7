@@ -71,7 +71,6 @@ public class Serverr {
         Request request = (Request) objectInputStream.readObject();
         byteArrayInputStream.close();
         objectInputStream.close();
-        System.out.println("все ОК");
         return request;
     }
 

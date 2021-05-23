@@ -18,8 +18,10 @@ public class LoginCommand extends AbstractCommand {
     public boolean execute(String stringArgument, Flat flat, User user) {
         try {
             if (!stringArgument.isEmpty() || flat != null) throw new IncorrectValueException();
-            if (databaseUserManager.checkUserByUsernameAndPassword(user)) ResponseCreator.appendln("Пользователь " +
-                    user.getLogin() + " авторизован.");
+            if (databaseUserManager.checkUserByUsernameAndPassword(user)) {
+               // databaseUserManager.setOnlineColumn(user);
+                ResponseCreator.appendln("Пользователь " +
+                    user.getLogin() + " авторизован.");}
             else throw new UserIsNotFoundException();
             return true;
         } catch (IncorrectValueException exception) {

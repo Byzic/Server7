@@ -41,6 +41,7 @@ public class InsertCommand extends AbstractCommand {
         }catch (NumberFormatException e){
             ResponseCreator.error("Формат введенного аргумента неверен. Он должен быть целым....");
         }catch(NullPointerException e){
+            e.printStackTrace();
             ResponseCreator.error("Элемент с таким ключом уже существует");
         }
         return false;

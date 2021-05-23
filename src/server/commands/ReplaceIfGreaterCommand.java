@@ -31,12 +31,10 @@ public class ReplaceIfGreaterCommand extends AbstractCommand {
             Integer key=Integer.parseInt(argument);
             Flat  oldFlat= collectionManager.getCollectionWithKey(key);
             int id= oldFlat.getID();
-            boolean a=(oldFlat.getOwner().getLogin().equals(flat.getOwner().getLogin())&&oldFlat.getOwner().getPassword().equals(flat.getOwner().getPassword()));
             boolean b=(oldFlat.getOwner().equals(user));
-            if (!(a&!b|!a&b)) throw new PermissionDeniedException();
+            if (!(b)) throw new PermissionDeniedException();
             if (!databaseCollectionManager.checkFlatByIdAndUserId(oldFlat.getID(), user)) throw new IllegalDatabaseEditException();
             collectionManager.checkKey(key);
-
             databaseCollectionManager.updateFlatByID(id,flat);
             flat.setID(oldFlat.getID());
             collectionManager.replaceIfGreater(key,flat);

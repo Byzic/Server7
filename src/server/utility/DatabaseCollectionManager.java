@@ -66,6 +66,8 @@ public class DatabaseCollectionManager {
     private final String UPDATE_HOUSE_BY_ID="UPDATE "+ DatabaseManager.HOUSE_TABLE+" SET "+DatabaseManager.HOUSE_TABLE_NAME_COLUMN+ " = ?, " +
             DatabaseManager.HOUSE_TABLE_YEAR_COLUMN+ " = ?, " +DatabaseManager.HOUSE_TABLE_NUMBER_OF_FLOORS_COLUMN+ " = ?" +" WHERE " +
             DatabaseManager.HOUSE_TABLE_ID_COLUMN+" = ?";
+    private final String UPDATE_HOUSE_ID="UPDATE "+DatabaseManager.FLAT_TABLE+" SET "+DatabaseManager.FLAT_TABLE_HOUSE_ID_COLUMN+
+            " =? WHERE "+DatabaseManager.HOUSE_TABLE_ID_COLUMN+" =?";
 
 
 
@@ -85,7 +87,14 @@ public class DatabaseCollectionManager {
         Furnish furnish=Furnish.valueOf(resultSet.getString(DatabaseManager.FLAT_TABLE_FURNISH_COLUMN));
         common.data.View view= View.valueOf(resultSet.getString(DatabaseManager.FLAT_TABLE_VIEW_COLUMN));
         Transport transport=Transport.valueOf(resultSet.getString(DatabaseManager.FLAT_TABLE_TRANSPORT_COLUMN));
-        House house =getHouseById(resultSet.getInt(DatabaseManager.FLAT_TABLE_HOUSE_ID_COLUMN));
+        Integer houseID=resultSet.getInt(DatabaseManager.FLAT_TABLE_HOUSE_ID_COLUMN);
+        House house;
+        if(houseID!=0){
+           house=getHouseById(houseID);
+        }else{
+            house=null;
+        }
+
         //Integer houseId=resultSet.getInt(DatabaseManager.FLAT_TABLE_HOUSE_ID_COLUMN);
         User owner = databaseUserManager.getUserById(resultSet.getInt(DatabaseManager.FLAT_TABLE_USER_ID_COLUMN));
         return new Flat(id,name,coordinates,creationDate,area,numberOfRooms,furnish,view,transport,house,owner);
@@ -102,6 +111,9 @@ public class DatabaseCollectionManager {
         PreparedStatement updateFlatView = null;
         PreparedStatement updateFlatTransport = null;
         PreparedStatement updateFlatHouse= null;
+        PreparedStatement updateFlatHouse2=null;
+        PreparedStatement deleteHouse = null;
+        PreparedStatement insertHouse = null;
         try {
             databaseManager.setCommit();
             databaseManager.setSavepoint();
@@ -114,7 +126,7 @@ public class DatabaseCollectionManager {
             updateFlatView = databaseManager.getPreparedStatement(UPDATE_FLAT_VIEW_BY_ID, false);
             updateFlatTransport = databaseManager.getPreparedStatement(UPDATE_FLAT_TRANSPORT_BY_ID, false);
             updateFlatHouse = databaseManager.getPreparedStatement(UPDATE_HOUSE_BY_ID, false);
-
+            updateFlatHouse2=databaseManager.getPreparedStatement(UPDATE_HOUSE_ID,false);
 
             updateFlatName.setString(1, flat.getName());
             updateFlatName.setInt(2, ID);
@@ -136,12 +148,42 @@ public class DatabaseCollectionManager {
             if (updateFlatView.executeUpdate() == 0) throw new SQLException();
             updateFlatTransport.setString(1,flat.getTransport().toString());
             updateFlatTransport.setInt(2,ID);
-            if (updateFlatTransport.executeUpdate() == 0) throw new SQLException();
-            updateFlatHouse.setString(1,flat.getHouse().getName());
-            updateFlatHouse.setLong(2,flat.getHouse().getYear());
-            updateFlatHouse.setLong(3,flat.getHouse().getNumberOfFloors());
-            updateFlatHouse.setInt(4,getHouseIdByFlatID(ID));
-            if (updateFlatHouse.executeUpdate() == 0) throw new SQLException();
+            if (Integer.valueOf(getHouseIdByFlatID(flat.getID()))!=0){
+                if (flat.getHouse()!=null){
+
+                    updateFlatHouse.setString(1,flat.getHouse().getName());
+                    updateFlatHouse.setLong(2,flat.getHouse().getYear());
+                    updateFlatHouse.setLong(3,flat.getHouse().getNumberOfFloors());
+                    updateFlatHouse.setInt(4,getHouseIdByFlatID(ID));
+                    if (updateFlatHouse.executeUpdate() == 0) throw new SQLException();
+                }else{
+
+                    deleteHouse = databaseManager.getPreparedStatement(DELETE_HOUSE_BY_ID, false);
+                    deleteHouse.setInt(1, flat.getID());
+                    if (deleteHouse.executeUpdate() == 0) throw new SQLException();
+                    updateFlatHouse2.setNull(1, java.sql.Types.INTEGER);
+                    updateFlatHouse2.setInt(2,flat.getID());
+                    if (updateFlatHouse2.executeUpdate() == 0) throw new SQLException();
+                }
+
+            }else{
+                if (flat.getHouse()!=null){
+                    Integer houseID;
+                    insertHouse = databaseManager.getPreparedStatement(INSERT_HOUSE, true);
+                    insertHouse.setString(1, flat.getHouse().getName());
+                    insertHouse.setLong(2, flat.getHouse().getYear());
+                    insertHouse.setLong(3, flat.getHouse().getNumberOfFloors());
+                    if (insertHouse.executeUpdate() == 0) throw new SQLException();
+                    ResultSet resultSetChapter = insertHouse.getGeneratedKeys();
+                    if (resultSetChapter.next()) houseID = resultSetChapter.getInt(1);
+                    else throw new SQLException();
+
+                    updateFlatHouse2.setInt(1, houseID);
+                    updateFlatHouse2.setInt(2,flat.getID());
+                    if (updateFlatHouse2.executeUpdate() == 0) throw new SQLException();
+                }
+
+            }
 
             databaseManager.commit();
         } catch (SQLException exception) {
@@ -158,6 +200,9 @@ public class DatabaseCollectionManager {
             databaseManager.closePreparedStatement(updateFlatView);
             databaseManager.closePreparedStatement(updateFlatTransport);
             databaseManager.closePreparedStatement(updateFlatHouse);
+            databaseManager.closePreparedStatement(updateFlatHouse2);
+            databaseManager.closePreparedStatement(deleteHouse);
+            databaseManager.closePreparedStatement(insertHouse);
             databaseManager.setAutoCommit();
         }
     }
@@ -179,7 +224,7 @@ public class DatabaseCollectionManager {
                 );
             } else throw new SQLException();
         } catch (SQLException e) {
-            System.out.println("Произошла ошибка при выполнении запроса SELECT_CHAPTER_BY_ID!");
+            System.out.println("Произошла ошибка при выполнении запроса SELECT_HOUSE_BY_ID!");
             throw new SQLException(e);
         } finally {
             databaseManager.closePreparedStatement(preparedStatement);
@@ -314,18 +359,19 @@ public class DatabaseCollectionManager {
         try {
             databaseManager.setCommit();//убираем автокомит
             databaseManager.setSavepoint();//сохраняем состояниебд
-
+            Integer houseID=null;
             LocalDateTime localDateTime = LocalDateTime.now();
-
+            if (flat.getHouse()!=null){
             insertHouse = databaseManager.getPreparedStatement(INSERT_HOUSE, true);
             insertHouse.setString(1, flat.getHouse().getName());
             insertHouse.setLong(2, flat.getHouse().getYear());
             insertHouse.setLong(3, flat.getHouse().getNumberOfFloors());
             if (insertHouse.executeUpdate() == 0) throw new SQLException();
             ResultSet resultSetChapter = insertHouse.getGeneratedKeys();
-            int houseID;
+
             if (resultSetChapter.next()) houseID = resultSetChapter.getInt(1);
-            else throw new SQLException();
+            else throw new SQLException();}
+
 
 
             insertFlat = databaseManager.getPreparedStatement(INSERT_FLAT, true);
@@ -338,7 +384,9 @@ public class DatabaseCollectionManager {
             insertFlat.setString(7, flat.getFurnish().toString());
             insertFlat.setString(8, flat.getView().toString());
             insertFlat.setString(9, flat.getTransport().toString());
-            insertFlat.setInt(10, houseID);
+            if (houseID==null){
+            insertFlat.setNull(10, java.sql.Types.INTEGER);
+            }else{insertFlat.setInt(10, houseID);}
             insertFlat.setInt(11, databaseUserManager.getUserIdByUsername(user));
             if (insertFlat.executeUpdate() == 0) throw new SQLException();
             ResultSet resultSetFlat = insertFlat.getGeneratedKeys();
