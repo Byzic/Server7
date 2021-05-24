@@ -244,7 +244,6 @@ public class DatabaseCollectionManager {
         try {
             preparedStatement = databaseManager.getPreparedStatement(SELECT_FLAT_BY_ID_AND_USER_ID, false);
             preparedStatement.setInt(1, flatID);
-            System.out.println(flatID+" "+ databaseUserManager.getUserIdByUsername(user));
             preparedStatement.setInt(2, databaseUserManager.getUserIdByUsername(user));
             ResultSet resultSet = preparedStatement.executeQuery();
             return resultSet.next();
