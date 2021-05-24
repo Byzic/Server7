@@ -1,6 +1,7 @@
 package server.utility;
 
 import common.Request;
+import common.Response;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -31,6 +32,27 @@ public class Serverr {
 
     public void run() {
         do_CTRL_C_Thread();
+        scanner = new Scanner(System.in);
+        Runnable userInput = () -> {
+            try {
+                while (true) {
+                    String[] userCommand = (scanner.nextLine().trim() + " ").split(" ", 2);
+                    userCommand[1] = userCommand[1].trim();
+                    if (!userCommand[0].equals("exit")) {
+                        System.out.println("Сервер не может сам принимать такую команду!");
+                        return;
+                    }
+                    if (userCommand[0].equals("exit")){
+                        System.out.println("Сервер закончил работу");
+                        System.exit(0);
+                    }
+
+                }
+            } catch (Exception e) {}
+        };
+        Thread thread = new Thread(userInput);
+        thread.start();
+
         try {
             System.out.println("Сервер запущен.");
             socket = new DatagramSocket(this.port);

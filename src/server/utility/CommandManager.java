@@ -7,6 +7,8 @@ import server.commands.AbstractCommand;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Класс для запуска команд
@@ -33,6 +35,7 @@ public class CommandManager {
     private AbstractCommand serverExitCommand;
     private AbstractCommand loginCommand;
     private AbstractCommand registerCommand;
+    private ReadWriteLock collectionLocker = new ReentrantReadWriteLock();
 
 
     public CommandManager(AbstractCommand exitCommand,AbstractCommand helpCommand, AbstractCommand infoCommand, AbstractCommand showCommand, AbstractCommand insertCommand, AbstractCommand updateIdCommand,
@@ -99,7 +102,12 @@ public class CommandManager {
      * @return состояние работы программы
      */
     public boolean info(String argument, Flat flat,User user){
+        collectionLocker.readLock().lock();
+        try{
         return infoCommand.execute(argument, flat,user);
+        }finally{
+            collectionLocker.readLock().unlock();
+        }
     }
 
 
@@ -109,7 +117,12 @@ public class CommandManager {
      * @return состояние работы программы
      */
     public boolean show(String argument, Flat flat,User user){
+        collectionLocker.readLock().lock();
+        try{
         return showCommand.execute(argument,flat,user);
+        }finally {
+            collectionLocker.readLock().unlock();
+        }
     }
     /**
      * Запускает команду очистки коллекции
@@ -117,7 +130,12 @@ public class CommandManager {
      * @return состояние работы программы
      */
     public boolean clear(String argument, Flat flat,User user){
-        return clearCommand.execute(argument, flat,user);
+        collectionLocker.writeLock().lock();
+        try {
+            return clearCommand.execute(argument, flat, user);
+        }finally {
+            collectionLocker.writeLock().unlock();
+        }
     }
     /**
      * Запускает команду добавления нового элемента
@@ -125,7 +143,12 @@ public class CommandManager {
      * @return состояние работы программы
      */
     public boolean insert(String argument, Flat flat,User user){
-        return insertCommand.execute(argument, flat,user);
+        collectionLocker.writeLock().lock();
+        try {
+            return insertCommand.execute(argument, flat, user);
+        }finally {
+            collectionLocker.writeLock().unlock();
+        }
     }
     /**
      * Запускает команду замены элемента по ключу
@@ -133,7 +156,12 @@ public class CommandManager {
      * @return состояние работы программы
      */
     public boolean update(String argument, Flat flat,User user){
-        return updateIdCommand.execute(argument, flat,user);
+        collectionLocker.writeLock().lock();
+        try {
+            return updateIdCommand.execute(argument, flat,user);
+        }finally {
+            collectionLocker.writeLock().unlock();
+        }
     }
     /**
      * Запускает команду удаления элемента по ключу
@@ -141,7 +169,12 @@ public class CommandManager {
      * @return состояние работы программы
      */
     public boolean removeKey(String argument, Flat flat,User user){
-        return removeKeyCommand.execute(argument, flat,user);
+        collectionLocker.writeLock().lock();
+        try {
+            return removeKeyCommand.execute(argument, flat,user);
+        }finally {
+            collectionLocker.writeLock().unlock();
+        }
     }
     /**
      * Запускает команду удаления элементов по количеству комнат
@@ -149,7 +182,12 @@ public class CommandManager {
      * @return состояние работы программы
      */
     public boolean removeAllByNumber(String argument, Flat flat,User user){
-        return removeAllByNumberOfRoomsCommand.execute(argument,  flat,user);
+        collectionLocker.writeLock().lock();
+        try {
+             return removeAllByNumberOfRoomsCommand.execute(argument,  flat,user);
+        }finally {
+            collectionLocker.writeLock().unlock();
+        }
     }
     /**
      * Запускает команду удаления элементов с ключом меньшим чем заданный
@@ -157,7 +195,12 @@ public class CommandManager {
      * @return состояние работы программы
      */
     public boolean removeLowerKey(String argument, Flat flat,User user){
-        return removeLowerKeyCommand.execute(argument, flat,user);
+        collectionLocker.writeLock().lock();
+        try {
+            return removeLowerKeyCommand.execute(argument, flat,user);
+        }finally {
+            collectionLocker.writeLock().unlock();
+        }
     }
     /**
      * Запускает команду, которая выводит элементы по имени
@@ -165,7 +208,12 @@ public class CommandManager {
      * @return состояние работы программы
      */
     public boolean filterName(String argument, Flat flat,User user){
-        return filterNameCommand.execute(argument,flat,user);
+        collectionLocker.readLock().lock();
+        try {
+            return filterNameCommand.execute(argument, flat, user);
+        }finally {
+            collectionLocker.readLock().unlock();
+        }
     }
     /**
      * Запускает команду выполнения скрипта
@@ -181,7 +229,12 @@ public class CommandManager {
      * @return состояние работы программы
      */
     public boolean replaceIfGreater(String argument, Flat flat,User user){
+        collectionLocker.writeLock().lock();
+        try{
         return replaceIfGreaterCommand.execute(argument,  flat,user);
+        }finally {
+            collectionLocker.writeLock().unlock();
+        }
     }
     /**
      * Запускает команду замены элемента, если он меньше
@@ -189,7 +242,12 @@ public class CommandManager {
      * @return состояние работы программы
      */
     public boolean replaceIfLower(String argument, Flat flat,User user){
-        return replaceIfLowerCommand.execute(argument, flat,user);
+        collectionLocker.writeLock().lock();
+        try{
+            return replaceIfLowerCommand.execute(argument, flat,user);
+        }finally {
+            collectionLocker.writeLock().unlock();
+        }
     }
     /**
      * Запускает команду подсчета кол-ва элементов с определенной отделкой
@@ -197,7 +255,12 @@ public class CommandManager {
      * @return состояние работы программы
      */
     public boolean countFurnish(String argument, Flat flat,User user){
-        return countFurnishCommand.execute(argument,  flat,user);
+        collectionLocker.readLock().lock();
+        try{
+            return countFurnishCommand.execute(argument,  flat,user);
+        }finally {
+            collectionLocker.readLock().unlock();
+        }
     }
     public boolean serverExit(String argument, Flat flat, User user) {
         return serverExitCommand.execute(argument, flat, user);

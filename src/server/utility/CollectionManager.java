@@ -8,6 +8,8 @@ import exceptions.KeyException;
 import java.time.LocalDateTime;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 /**
@@ -51,7 +53,8 @@ public class CollectionManager {
     public String getStringElements(){
         String strElem="";
         if (hashtable.isEmpty()) return "Коллекция пуста!!!";
-        for (String str: hashtable.entrySet().stream().map(x->"\u001B[37m"+"\u001B[33m"+"КЛЮЧ:"+x.getKey()+"\n"+"\u001B[33m"+"\u001B[37m"+x.getValue().toString()+"\n").collect(Collectors.toList())){
+        for (String str: hashtable.entrySet().stream().map(x->"\u001B[37m"+"\u001B[33m"+"КЛЮЧ:"+x.getKey()+
+                "\n"+"\u001B[33m"+"\u001B[37m"+x.getValue().toString()+"\n").collect(Collectors.toList())){
             strElem+=str;
         }
         return strElem;
@@ -71,7 +74,9 @@ public class CollectionManager {
      * @return имя класса коллекции
      */
     public String collectionType(){
+
         return hashtable.getClass().getName();
+
 
     }
     /**
@@ -79,7 +84,9 @@ public class CollectionManager {
      * @return размер коллекции
      */
     public int collectionSize(){
+
         return hashtable.size();
+
     }
     public LocalDateTime getLastInitTime(){
         return lastInitTime;
@@ -93,7 +100,9 @@ public class CollectionManager {
      * @param flat значение
      */
     public void insertNew(Integer key, Flat flat){
+
         hashtable.put(key,flat);
+
     }
 
     /**
@@ -102,9 +111,11 @@ public class CollectionManager {
      * @return ключ
      */
     public Integer getKeyById(Integer id){
+
         List list=hashtable.entrySet().stream().filter(x->x.getValue().getID().equals(id)).map(x-> x.getKey()).collect(Collectors.toList());
         if (list.isEmpty()) return null;
         else return Integer.parseInt(list.get(0).toString());
+
 
 
     }
@@ -115,8 +126,10 @@ public class CollectionManager {
      * @param flat значение
      */
     public void update(Integer key, Flat flat){
-        hashtable.remove(key);
-        hashtable.put(key,flat);
+
+            hashtable.remove(key);
+            hashtable.put(key,flat);
+
 
     }
 
