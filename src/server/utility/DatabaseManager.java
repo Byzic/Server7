@@ -54,7 +54,7 @@ public class DatabaseManager {
             System.out.println("Введите логин:");
             this.user = scanner.nextLine();
             System.out.println("Введите пароль:");
-            this.password = "ruz426";//String.valueOf(console.readPassword());
+            this.password = String.valueOf(console.readPassword());
             try{
                 Class.forName(JDBC_DRIVER);
                 connection = DriverManager.getConnection(url, user, password);
