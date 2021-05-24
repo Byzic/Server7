@@ -5,6 +5,7 @@ import common.data.Flat;
 import exceptions.DatabaseHandlingException;
 import exceptions.IncorrectValueException;
 import exceptions.UserAlreadyExists;
+import server.App;
 import server.utility.DatabaseUserManager;
 import server.utility.ResponseCreator;
 
@@ -17,8 +18,10 @@ public class RegisterCommand extends AbstractCommand{
     public boolean execute(String stringArgument, Flat flat, User user) {
         try {
             if (!stringArgument.isEmpty() || flat != null) throw new IncorrectValueException();
-            if (databaseUserManager.insertUser(user)) ResponseCreator.appendln("Пользователь " +
-                    user.getLogin() + " зарегистрирован.");
+            if (databaseUserManager.insertUser(user)) {
+                App.user_ID.add(databaseUserManager.getUserIdByUsername(user));
+                ResponseCreator.appendln("Пользователь " +
+                    user.getLogin() + " зарегистрирован.");}
             else throw new UserAlreadyExists();
             return true;
         } catch (IncorrectValueException exception) {

@@ -3,8 +3,11 @@ package server.commands;
 
 import common.User;
 import common.data.Flat;
+import exceptions.DatabaseHandlingException;
 import exceptions.IncorrectValueException;
+import server.App;
 import server.utility.CollectionManager;
+import server.utility.DatabaseUserManager;
 import server.utility.ResponseCreator;
 
 /**
@@ -12,9 +15,11 @@ import server.utility.ResponseCreator;
  **/
 public class ExitCommand extends AbstractCommand {
     CollectionManager collectionManager;
-        public ExitCommand(CollectionManager collectionManager){
+    DatabaseUserManager databaseUserManager;
+        public ExitCommand(CollectionManager collectionManager,DatabaseUserManager databaseUserManager){
             super("exit","завершить программу ")  ;
             this.collectionManager=collectionManager;
+            this.databaseUserManager=databaseUserManager;
 
         }
         /**
@@ -26,14 +31,16 @@ public class ExitCommand extends AbstractCommand {
         public boolean execute(String argument, Flat flat, User user){
             try {
                 if (!argument.isEmpty())throw new IncorrectValueException();
+                App.user_ID.remove(App.user_ID.indexOf(databaseUserManager.getUserIdByUsername(user)));
                 ResponseCreator.appendln("Клиент "+user.getLogin()+" завершил свою работу");
 
                 return true;
             }
-            catch (
-                    IncorrectValueException e) {
+            catch (IncorrectValueException  e) {
                 ResponseCreator.error("У этой команды нет параметров! Необходимо ввести: exit");
 
+            }catch(DatabaseHandlingException e){
+                ResponseCreator.error("Возникла проблема с обращением к бд");
             }
             return false;
         }

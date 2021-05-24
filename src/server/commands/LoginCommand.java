@@ -4,9 +4,12 @@ import common.User;
 import common.data.Flat;
 import exceptions.DatabaseHandlingException;
 import exceptions.IncorrectValueException;
+import exceptions.RecurringUserException;
 import exceptions.UserIsNotFoundException;
+import server.App;
 import server.utility.DatabaseUserManager;
 import server.utility.ResponseCreator;
+
 
 public class LoginCommand extends AbstractCommand {
     private DatabaseUserManager databaseUserManager;
@@ -19,9 +22,13 @@ public class LoginCommand extends AbstractCommand {
         try {
             if (!stringArgument.isEmpty() || flat != null) throw new IncorrectValueException();
             if (databaseUserManager.checkUserByUsernameAndPassword(user)) {
+                if (App.user_ID.contains(databaseUserManager.getUserIdByUsername(user))){
+                    throw new RecurringUserException();
+                }else{
+                    App.user_ID.add(databaseUserManager.getUserIdByUsername(user));
                // databaseUserManager.setOnlineColumn(user);
                 ResponseCreator.appendln("Пользователь " +
-                    user.getLogin() + " авторизован.");}
+                    user.getLogin() + " авторизован.");}}
             else throw new UserIsNotFoundException();
             return true;
         } catch (IncorrectValueException exception) {
@@ -32,6 +39,8 @@ public class LoginCommand extends AbstractCommand {
             ResponseCreator.error("Произошла ошибка при обращении к базе данных!");
         } catch (UserIsNotFoundException exception) {
             ResponseCreator.error("Неправильные имя пользователя или пароль!");
+        }catch (RecurringUserException e){
+            ResponseCreator.error("Данный пользователь уже авторизован.");
         }
         return false;
     }

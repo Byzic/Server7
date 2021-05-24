@@ -17,7 +17,7 @@ public class DatabaseUserManager {
     private final String INSERT_USER = "INSERT INTO " +
             DatabaseManager.USER_TABLE + " (" +
             DatabaseManager.USER_TABLE_USERNAME_COLUMN + ", " +
-            DatabaseManager.USER_TABLE_PASSWORD_COLUMN + ", " +DatabaseManager.USER_TABLE_ONLINE_COLUMN+") VALUES (?, ?, ?)";
+            DatabaseManager.USER_TABLE_PASSWORD_COLUMN + ") VALUES (?, ?)";
     private final String UPDATE_ONLINE_COLUMN="UPDATE "+DatabaseManager.USER_TABLE+" SET "+DatabaseManager.USER_TABLE_ONLINE_COLUMN+" WHERE "+DatabaseManager.USER_TABLE_USERNAME_COLUMN+ " = ? AND "+DatabaseManager.USER_TABLE_PASSWORD_COLUMN+ " = ?";
 
 
@@ -37,6 +37,7 @@ public class DatabaseUserManager {
 
             return resultSet.next();
         } catch (SQLException exception) {
+            exception.printStackTrace();
             throw new DatabaseHandlingException();
         } finally {
             databaseManager.closePreparedStatement(preparedSelectUserByUsernameAndPasswordStatement);
@@ -63,10 +64,11 @@ public class DatabaseUserManager {
                     databaseManager.getPreparedStatement(INSERT_USER, false);
             preparedInsertUserStatement.setString(1, user.getLogin());
             preparedInsertUserStatement.setString(2, user.getPassword());
-            preparedInsertUserStatement.setBoolean(3, true);
+            //preparedInsertUserStatement.setBoolean(3, true);
             if (preparedInsertUserStatement.executeUpdate() == 0) throw new SQLException();
             return true;
         } catch (SQLException exception) {
+            exception.printStackTrace();
             throw new DatabaseHandlingException();
         } finally {
             databaseManager.closePreparedStatement(preparedInsertUserStatement);
@@ -79,8 +81,9 @@ public class DatabaseUserManager {
         PreparedStatement preparedSelectUserByUsernameStatement = null;
         try {
             preparedSelectUserByUsernameStatement =
-                    databaseManager.getPreparedStatement(SELECT_USER_BY_USERNAME, false);
+                    databaseManager.getPreparedStatement(SELECT_USER_BY_USERNAME_AND_PASSWORD, false);
             preparedSelectUserByUsernameStatement.setString(1, user.getLogin());
+            preparedSelectUserByUsernameStatement.setString(2, user.getPassword());
             ResultSet resultSet = preparedSelectUserByUsernameStatement.executeQuery();
             if (resultSet.next()) {
                 userId = resultSet.getInt(DatabaseManager.USER_TABLE_ID_COLUMN);

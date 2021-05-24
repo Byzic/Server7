@@ -3,8 +3,13 @@ package server;
 import server.commands.*;
 import server.utility.*;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 public class App {
     public static final int PORT = 8088;
+    public static final  List<Integer> user_ID=new ArrayList<>();
     public static final String ENV_VARIABLE = "FLAT_FILE";
     public static void main(String[] args) {
         DatabaseManager databaseManager = new DatabaseManager();
@@ -12,7 +17,7 @@ public class App {
         DatabaseCollectionManager databaseCollectionManager = new DatabaseCollectionManager(databaseManager, databaseUserManager);
         CollectionManager collectionManager = new CollectionManager(databaseCollectionManager);
         CommandManager commandManager = new CommandManager(
-                new ExitCommand(collectionManager),
+                new ExitCommand(collectionManager,databaseUserManager),
                 new HelpCommand(),
                 new InfoCommand(collectionManager),
                 new ShowCommand(collectionManager),
