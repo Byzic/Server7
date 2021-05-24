@@ -159,7 +159,7 @@ public class DatabaseCollectionManager {
                 }else{
 
                     deleteHouse = databaseManager.getPreparedStatement(DELETE_HOUSE_BY_ID, false);
-                    deleteHouse.setInt(1, flat.getID());
+                    deleteHouse.setInt(1, getHouseIdByFlatID(flat.getID()));
                     if (deleteHouse.executeUpdate() == 0) throw new SQLException();
                     updateFlatHouse2.setNull(1, java.sql.Types.INTEGER);
                     updateFlatHouse2.setInt(2,flat.getID());

@@ -36,7 +36,8 @@ public class ClearCommand extends AbstractCommand{
             int count=0;
             if (!argument.isEmpty() || flat!= null)throw new IncorrectValueException();
 
-            for (Flat f:collectionManager.getCollection().values()) {
+            for (Map.Entry<Integer, Flat> e : collectionManager.getCollection().entrySet()) {
+                Flat f=e.getValue();
 
                 boolean b=(f.getOwner().equals(user));
                 if (!(b)) continue;
