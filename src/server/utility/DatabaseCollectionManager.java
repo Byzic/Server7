@@ -263,11 +263,13 @@ public class DatabaseCollectionManager {
             deleteFlat = databaseManager.getPreparedStatement(DELETE_FLAT_BY_ID, false);
             deleteFlat.setInt(1, flatID);
             if (deleteFlat.executeUpdate() == 0) throw new SQLException();
+            if (houseID!=0){
             deleteHouse = databaseManager.getPreparedStatement(DELETE_HOUSE_BY_ID, false);
             deleteHouse.setInt(1, houseID);
-            if (deleteHouse.executeUpdate() == 0) throw new SQLException();
+            if (deleteHouse.executeUpdate() == 0) throw new SQLException();}
         } catch (SQLException exception) {
-            System.out.println("Произошла ошибка при выполнении запроса DELETE_MARINE_BY_ID!");
+            exception.printStackTrace();
+            System.out.println("Произошла ошибка при выполнении запроса DELETE_FLAT_BY_ID!");
             throw new DatabaseManagerException();
         } finally {
             databaseManager.closePreparedStatement(deleteFlat);
