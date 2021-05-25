@@ -20,15 +20,18 @@ public class HelpCommand extends AbstractCommand {
      */
     @Override
     public boolean execute(String argument, Flat flat, User user) {
+        System.out.println("Начало выполнения команды help");
         long start= System.nanoTime();
         long time=0;
-        /*while (time<1.5){
+
+        while (time<10){
             long finish= System.nanoTime();
             time=(finish-start)/ 1000000000;
-        }*/
+        }
         try {
 
          if (!argument.isEmpty())throw new IncorrectValueException();
+         System.out.println("Команда help выполнилась");
             return true;
         }
          catch (IncorrectValueException  e) {
