@@ -19,7 +19,7 @@ public class RegisterCommand extends AbstractCommand{
         try {
             if (!stringArgument.isEmpty() || flat != null) throw new IncorrectValueException();
             if (databaseUserManager.insertUser(user)) {
-                App.user_ID.add(databaseUserManager.getUserIdByUsername(user));
+                //App.user_ID.add(databaseUserManager.getUserIdByUsername(user));
                 ResponseCreator.appendln("Пользователь " +
                     user.getLogin() + " зарегистрирован.");}
             else throw new UserAlreadyExists();

@@ -25,7 +25,7 @@ public class LoginCommand extends AbstractCommand {
                 if (App.user_ID.contains(databaseUserManager.getUserIdByUsername(user))){
                     throw new RecurringUserException();
                 }else{
-                    App.user_ID.add(databaseUserManager.getUserIdByUsername(user));
+                    //App.user_ID.add(databaseUserManager.getUserIdByUsername(user));
                // databaseUserManager.setOnlineColumn(user);
                 ResponseCreator.appendln("Пользователь " +
                     user.getLogin() + " авторизован.");}}

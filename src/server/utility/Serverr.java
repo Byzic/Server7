@@ -11,9 +11,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.Scanner;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 public class Serverr {
     private int port;
@@ -22,9 +20,12 @@ public class Serverr {
     private InetAddress address;
     private ExecutorService fixedThreadPool = Executors.newFixedThreadPool(1);
     private Request request;
+    private Response response;
     private Scanner scanner;
+    private int count=0;
+    private Exchanger<ResponseWriteAction> ex=new Exchanger<>();
     private ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
-
+    private ResponseWriterTread responseWriterTread;
     public Serverr(int port, RequestManager requestManager) {
         this.port = port;
         this.requestManager = requestManager;
@@ -32,6 +33,7 @@ public class Serverr {
 
     public void run() {
         do_CTRL_C_Thread();
+
         scanner = new Scanner(System.in);
         Runnable userInput = () -> {
             try {
@@ -45,6 +47,7 @@ public class Serverr {
                     if (userCommand[0].equals("exit")){
                         System.out.println("Сервер закончил работу");
                         System.exit(0);
+                        responseWriterTread.interrupt();
                     }
 
                 }
@@ -56,25 +59,36 @@ public class Serverr {
         try {
             System.out.println("Сервер запущен.");
             socket = new DatagramSocket(this.port);
+            responseWriterTread=new ResponseWriterTread(ex);
+            responseWriterTread.start();
+
+
             while (true) {
                 try {
                     if (!cachedThreadPool.submit(() -> {
                         try {
                             request = getRequest();
-                            System.out.println("Получена команда '" + request.getCommandName() + "'");
+                            System.out.println("\u001B[37m"+"\u001B[33m"+"Получена команда '" + request.getCommandName() + "'"+"\u001B[33m"+"\u001B[37m");
                             return true;
                         } catch (ClassNotFoundException | IOException e) {
                             e.printStackTrace();
                         }
                         return false;
                     }).get()) break;
-                    new RequestProcessingThread(requestManager, request, address, port, socket).start();
+
+
+                    new RequestProcessingThread(requestManager, request,address, port, socket, ex).start();
+
+
+
                 } catch (InterruptedException | ExecutionException e) {
                     System.out.println("При чтении запроса произошла ошибка многопоточности!");
                 }
             }
         } catch (SocketException e) {
             System.out.println("Произошла ошибка при работе с сокетом!");
+            responseWriterTread.interrupt();
+            System.exit(-1);
         }
     }
 
@@ -100,6 +114,7 @@ public class Serverr {
         scanner = new Scanner(System.in);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("Завершаю программу.");
+            responseWriterTread.interrupt();
         }));
     }
 }

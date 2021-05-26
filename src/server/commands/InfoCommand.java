@@ -29,7 +29,7 @@ public class InfoCommand extends AbstractCommand {
     public boolean execute(String argument, Flat flat, User user) {
         try {
             if (!argument.isEmpty())throw new IncorrectValueException();
-            System.out.println("Начало выполнения команды info");
+
             ResponseCreator.appendln("\u001B[37m"+"\u001B[33m"+"Информация о коллекции"+"\u001B[33m"+"\u001B[37m");
             LocalDateTime lastInitTime = collectionManager.getLastInitTime();
             String lastInitTimeString = (lastInitTime == null) ? "в данной сессии инициализации еще не происходило" :
@@ -37,7 +37,7 @@ public class InfoCommand extends AbstractCommand {
             ResponseCreator.appendln(" Тип: " + collectionManager.collectionType());
             ResponseCreator.appendln(" Дата последней инициализации: " + lastInitTimeString);
             ResponseCreator.appendln(" Количество элементов: " + collectionManager.collectionSize());
-            System.out.println("команда info выполнилась");
+
             return true;
 
 
